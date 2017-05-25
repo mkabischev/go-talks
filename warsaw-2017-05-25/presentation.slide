@@ -1,5 +1,5 @@
 Instrumenting Go application
-24 May 2017
+25 May 2017
 
 Mike Kabischev
 Software engineer, Juno
@@ -16,6 +16,8 @@ In context of computer programming instrumentation refers to an ability
 
 Programmers implement instrumentation in the form of code instructions. Instrumentation is necessary to review the performance of the application.
 
+: information about juno
+
 * Juno
 
 - 4 mobile applications
@@ -24,9 +26,13 @@ Programmers implement instrumentation in the form of code instructions. Instrume
 - thousands RPS
 - 40+ backend engineers
 
+: architecture overview
+
 * Architecture overview
 
-.image examples/images/overview_2.png 580 _
+.image examples/images/overview_3.png 580 _
+
+: 12 factor apps
 
 * Twelve-factor app
 
@@ -38,6 +44,8 @@ Programmers implement instrumentation in the form of code instructions. Instrume
 
 .link https://12factors.net
 
+: logs
+
 * Logs
 
 * Logs
@@ -47,13 +55,7 @@ Programmers implement instrumentation in the form of code instructions. Instrume
 - Help to debug application
 - Save hours for developers & OPS team
 
-* What to log?
-
-- Errors
-- Events
-- State
-- Requests
-- Some debug information
+: standard library
 
 * How to log?
 
@@ -71,10 +73,14 @@ Alternatives:
 
 .link https://github.com/avelino/awesome-go#logging
 
+: structured logging
+
 * Structured logging
 
 Helps to answer to questions: *What*? *Where*? *When*?
 .code examples/logs/structured/example.json
+
+: logger & context
 
 * Logger + Context = ❤️
 
@@ -88,13 +94,19 @@ Prepare logger
 Use it in handler
 .code examples/logs/structured/file.go /HANDLER_START OMIT/,/HANDLER_END OMIT/ HLx
 
+: structured logging
+
 * Structured logging
 
 .code examples/logs/structured/main /START OMIT/,/END OMIT/ HLx
 
+: infrastructure
+
 * Logging infrastructure
 
 .image examples/logs/structured/overview2.png _ 680
+
+: conclusion
 
 * Logs
 
@@ -111,6 +123,10 @@ Use it in handler
 - etc
 
 3. Don`t enable only *errors* mode in production
+
+: questions
+
+* Questions?
 
 * Metrics
 
@@ -139,6 +155,8 @@ External resources:
 - errors
 - connections
 
+: libraries
+
 * How to measure? Libraries
 
 - expvar package
@@ -146,6 +164,8 @@ External resources:
 - github.com/go-kit/metrics
 - *github.com/prometheus/client_golang*
 - github.com/influxdata/influxdb/client
+
+: storages
 
 * How to measure? Storages
 
@@ -159,9 +179,13 @@ Pull model:
 
 - *Prometheus*
 
+: infrastructure
+
 * Monitoring infrastructure
 
 .image examples/metrics/pull_model_2.png _ 750
+
+: pull model
 
 * Prometheus & pull model
 
@@ -169,6 +193,8 @@ Pull model:
 - Application doesn`t depend on monitoring system
 - Easy local debug
 - Clean and good client API
+
+: prometheus data model
 
 * Multidimensional data model
 
@@ -189,12 +215,16 @@ Count requests in group *backend0*
 
  sum(request_count{service="routing", group="backend0"}) 28358
 
-* Types of metrics
+ : metric types
+
+* Metrics types
 
 - *Counter* is a cumulative metric that represents a single numerical value that only ever goes up.
 - *Gauge*  is a metric that represents a single numerical value that can arbitrarily go up and down.
 - *Histogram* samples observations and counts them in configurable buckets.
 - *Summary* similar to a histogram. Also provides a total count of observations and a sum of all observed values, it calculates configurable quantiles over a sliding time window.
+
+: how we use it
 
 * How we use it?
 
@@ -203,9 +233,13 @@ Count requests in group *backend0*
 - Integration with database/storage drivers
 - Business events & metrics
 
+: decorators
+
 * Metric decorators
 
 .code examples/metrics/middlewares.go /START OMIT/,/END OMIT/ HLx
+
+: distributed tracing
 
 * Distributed tracing
 
@@ -213,6 +247,7 @@ Count requests in group *backend0*
 
 .image examples/tracing/tracing_problem_2.png _ 400
 
+: history
 
 * Tracing systems
 
@@ -220,6 +255,8 @@ Count requests in group *backend0*
 - Twitter Zipkin (2012)
 - Sourcegraph Appdash (2015)
 - Uber Jaeger (2017)
+
+: opentracing.io
 
 * OpenTracing.io
 
@@ -232,13 +269,19 @@ A vendor-neutral open standard for distributed tracing.
 .link http://opentracing.io
 .link https://github.com/opentracing/opentracing-go
 
+: distributed request
+
 * Distributed request
 
 .image examples/tracing/tracing_problem_2.png _ 400
 
+: trace picture
+
 * Trace
 
 .image examples/tracing/tracing_kolbasa_4.png _ 1000
+
+: span state
 
 * Span
 
