@@ -1,0 +1,259 @@
+Суслик := личность!
+
+Mike Kabischev
+Software engineer, Juno
+
+kabischev@gojuno.com
+@mkabischev
+github.com/mkabischev
+
+* This talk
+
+- Who is Mr. Gopher?
+- History
+- Language overview
+- Example
+- Tooling
+
+* Who is Mr. Gopher?
+
+.image mrgopher.jpg _ 500
+
+* Who is Mr. Gopher?
+
+"Go is an open source programming language that makes it easy to build simple, reliable, and efficient software."
+.link http://golang.org golang.org
+
+* History
+
+* Problems
+
+- complex software
+- large distributed systems
+- a lot of developers
+- huge codebase
+
+* Work started in 2007
+
+.image authors.png
+.caption Robert Griesemer, Rob Pike, Ken Thompson
+
+* Goals
+
+- efficient statically-typed compiled language
+- safe memory model
+- low-latency and efficient garbage collector
+- good support for concurrency and communication
+- high-speed compilation
+
+* Biography
+
+- 2007. Design started (3 people, 20% project)
+- 2009. Public release (5 people)
+- 2012. First stable release.
+- ...
+- 2013. ~150 contributors
+- 2013. Birth or the most famous product written in Go
+- ...
+- 2015. ver 1.5 (compiler rewritten to Go)
+- ...
+- 2016. ver 1.7 (~700 contributors)
+
+* Language
+
+* Golang
+
+- *C-like* *syntax* *family*
+- Statically typed
+- Garbage collector
+- Structs & methods
+- Interfaces
+- Reflection
+
+* Golang
+
+- C-like syntax family
+- *Statically* *typed*
+- Garbage collector
+- Structs & methods
+- Interfaces
+- Reflection
+
+* Golang
+
+- C-like syntax family
+- Statically typed
+- *Garbage* *collector*
+- Structs & methods
+- Interfaces
+- Reflection
+
+* Golang
+
+- C-like syntax family
+- Statically typed
+- Garbage collector
+- *Structs* *&* *methods*
+- Interfaces
+- Reflection
+
+* Golang
+
+- C-like syntax family
+- Statically typed
+- Garbage collector
+- Structs & methods
+- *Interfaces*
+- Reflection
+
+* Golang
+
+- C-like syntax family
+- Statically typed
+- Garbage collector
+- Structs & methods
+- Interfaces
+- *Reflection*
+
+* Hello GDG!
+
+.code example/main.go
+
+* Reserved keywords
+
+    break        default      func         interface    select
+    case         defer        go           map          struct
+    chan         else         goto         package      switch
+    const        fallthrough  if           range        type
+    continue     for          import       return       var
+
+* Goroutines
+Like lightweighted threads.
+Scheduled by runtime on OS threads.
+Application can have thousands of them. 
+
+.code example/goroutine.go
+
+* Channels
+Way to communicate between goroutines.
+
+.code example/channels.go
+
+* Example
+
+Let`s make simple delivery service aggregator.
+
+.image pictures/example-arch.png _ 700
+
+* Delivery aggregator API
+
+.code example/project/main.go /START OMIT/,/END OMIT/
+
+* Providers implementations
+
+.code example/project/implementation.go /START OMIT/,/END OMIT/
+
+* Simple calculation
+
+.code example/project/serial.go /START OMIT/,/END OMIT/
+
+* Parallel calculation 
+
+.code example/project/parallel.go /START OMIT/,/END OMIT/
+
+* What if somebody is slow?
+
+.image pictures/example-slow.png _ 700
+
+* What if somebody is slow?
+
+.code example/project/timeout.go /START OMIT/,/END OMIT/
+
+* What if somebody is unreliable?
+
+.image pictures/example-bad.png _ 700
+
+* What if somebody is unreliable?
+
+.code example/project/replicate.go /START OMIT/,/END OMIT/
+.code example/project/replicate_2.go /START OMIT/,/END OMIT/
+
+* Conclusion
+
+Our first implementation was: 
+
+- slow
+- sequential
+- failure-sensitive
+
+And after few simple transformation it became:
+
+- fast
+- concurrent
+- reliable
+
+* Tooling
+
+* Run it
+    go run main.go
+
+* Compile it
+    go build main.go
+
+* Make your code pretty
+
+.code tooling/fmt.sh
+.code tooling/vet.sh
+
+* Check that it works
+
+    go test
+
+* How fast it works
+
+    go test -bench
+
+.code tooling/benchmark_1.txt
+.code tooling/benchmark_2.txt
+
+* Share you code!
+
+    go get github.com/mkabischev/awesome-package
+
+* Proverbs
+
+* Proverbs
+
+- Concurrency is not parallelism.
+- The bigger the interface, the weaker the abstraction.
+- Gofmt's style is no one's favorite, yet gofmt is everyone's favorite.
+- A little copying is better than a little dependency.
+- Clear is better than clever.
+- Design the architecture, name the components, document the details.
+- Documentation is for users.
+- Don't panic.
+
+.link https://go-proverbs.github.io/
+
+* How to start
+
+.image how_to_start.jpeg _ 450
+
+* How to start
+
+.link https://tour.golang.org tour.golang.org
+.link https://groups.google.com/forum/#!forum/golang-nuts golang-nuts
+.link https://golangshow.com/ golang show (podcast)
+.link http://4gophers.ru/ 4gophers.ru
+
+#* Golang powered projects
+#
+#- Docker
+#- Kubernetes
+#- Grafana
+#- Consul
+#- Terraform
+#- Prometheus
+#- InfluxDB
+#
+#And more and more

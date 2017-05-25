@@ -1,0 +1,2 @@
+PASS
+BenchmarkMyFunc 10000000               208 ns/op              32 B/op          2 allocs/op

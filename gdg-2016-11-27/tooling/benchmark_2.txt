@@ -1,0 +1,9 @@
+# benchcmp old.txt new.txt
+benchmark           old ns/op     new ns/op     delta
+BenchmarkMyFunc     1579          495           -68.65%
+
+benchmark           old allocs     new allocs     delta
+BenchmarkMyFunc     2              2              +0.00%
+
+benchmark           old bytes     new bytes     delta
+BenchmarkMyFunc     184           48            -73.91%
