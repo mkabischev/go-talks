@@ -22,15 +22,14 @@ func doWithTrace(tracer opentracing.Tracer) {
 	c := &http.Client{Transport: &nethttp.Transport{}} // HLx
 
 	// create a top-level span to represent full work of the client
-	span := tracer.StartSpan("get http://example.com")
-	defer span.Finish()
-	ctx := opentracing.ContextWithSpan(context.Background(), span)
 	// START OMIT
+	span := tracer.StartSpan("client") // HLx
+	defer span.Finish()
 
+	ctx := opentracing.ContextWithSpan(context.Background(), span)
 	req, _ := http.NewRequest("GET", "http://example.com/", nil)
-
 	req = req.WithContext(ctx)
-	//wrap the request in nethttp.TraceRequest
+
 	req, ht := nethttp.TraceRequest(tracer, req) // HLx
 	defer ht.Finish()                            // HLx
 

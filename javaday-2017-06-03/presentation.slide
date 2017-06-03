@@ -1,0 +1,303 @@
+Instrumenting Go application
+3 June 2017
+
+Mike Kabischev
+Software engineer, Juno
+kabischev@gmail.com
+@mkabischev
+
+* Instrumentation
+
+In context of computer programming instrumentation refers to an ability
+
+- to monitor the level of a product's performance
+- to diagnose errors
+- to write trace information
+
+Programmers implement instrumentation in the form of code instructions. Instrumentation is necessary to review the performance of the application.
+
+: information about juno
+
+* Juno
+
+- 4 mobile applications
+- 60+ microservices
+- hundreds of running containers
+- thousands RPS
+- 40+ backend engineers
+
+: architecture overview
+
+* The "Spaceship"
+
+.image examples/images/overview_4.png 500 _
+
+: 12 factor apps
+
+* Twelve-factor app
+
+- Use *declarative* formats for setup automation
+- Offer *maximum* *portability* between execution environments
+- Are suitable for *deployment* on modern *cloud* *platforms*
+- *Minimize* *divergence* between development and production
+- Can *scale* *up* without significant changes to tooling, architecture, or development practices
+
+.link https://12factors.net
+
+: logs
+
+* Logs
+
+* Logs
+
+- Fundamental part of applications
+- Show progress of execution
+- Help to debug application
+- Save hours for developers & OPS team
+
+* How to log?
+
+Std log package:
+
+- no log level support
+- only plain-text format
+- no struct-logging support
+
+Alternatives:
+
+- *github.com/Sirupsen/logrus*
+- github.com/uber-go/zap
+- github.com/golang/glog
+
+.link https://github.com/avelino/awesome-go#logging
+
+* Structured logging
+
+Human friendly
+.code examples/logs/structured/before.json
+
+Machine friendly
+.code examples/logs/structured/after.json HLx
+
+* Structured logging
+
+.code examples/logs/structured/main /START OMIT/,/END OMIT/ HLx
+
+Output
+.code examples/logs/structured/full.json HLx
+
+: infrastructure
+
+* Logging infrastructure
+
+.image examples/logs/structured/overview3.png _ 680
+
+: conclusion
+
+* Logs
+
+1. Use log management system
+
+- ELK stack
+- Graylog2
+- etc
+
+2. Use structured logging
+
+- traceID (*always*)
+- userID
+- etc
+
+3. Don`t enable only *errors* mode in production
+
+* Metrics
+
+* Metrics
+
+- Show performance of application
+- Helps to detect impacts of deployments
+- May trigger alerts
+
+* What to measure?
+
+Runtime:
+
+- number of goroutines/threads
+- memory usage & GC timing
+
+Service:
+
+- request rate
+- request duration
+- errors
+
+External resources:
+
+- request rate/duration
+- errors
+- connections
+
+* How to measure? Storages
+
+Push model:
+
+- Graphite
+- InfluxDB
+- OpenTSDB
+
+Pull model:
+
+- *Prometheus*
+
+: infrastructure
+
+* Monitoring infrastructure
+
+.image examples/metrics/pull_model_3.png _ 750
+
+: pull model
+
+* Prometheus & pull model
+
+- Helps to avoid metric name collisions
+- Application doesn`t depend on monitoring system
+- Easy local debug
+- Clean and good client API
+
+: prometheus data model
+
+* Multidimensional data model
+
+Metrics
+
+ request_count{service="routing", instance="10.0.1.1", group="backend0"} 14163
+ request_count{service="routing", instance="10.0.1.2", group="backend0"} 14195
+ request_count{service="routing", instance="10.0.2.1", group="backend1"} 15434
+
+*request_count* - metric name
+*service*, *instance*, *group* - labels names
+
+Count all requests
+
+ sum(request_count{service="routing"}) 43792
+
+Count requests in group *backend0*
+
+ sum(request_count{service="routing", group="backend0"}) 28358
+
+* Metrics types
+
+- *Counter* is a cumulative metric that represents a single numerical value that only ever goes up.
+- *Gauge*  is a metric that represents a single numerical value that can arbitrarily go up and down.
+- *Histogram* samples observations and counts them in configurable buckets.
+- *Summary* similar to a histogram. Also provides a total count of observations and a sum of all observed values, it calculates configurable quantiles over a sliding time window.
+
+: how we use it
+
+* How we use it?
+
+- Middlewares for RPC layer
+- Decorators for external APIs & libraries
+- Integration with database/storage drivers
+- Business events & metrics
+
+: decorators
+
+: distributed tracing
+
+* Distributed tracing
+
+* Distributed system
+
+.image examples/tracing/tracing_problem_2.png _ 400
+
+: history
+
+* Tracing systems
+
+- Google Dapper (~2004)
+- Twitter Zipkin (2012)
+- Sourcegraph Appdash (2015)
+- Uber Jaeger (2017)
+
+: opentracing.io
+
+* OpenTracing.io
+
+A vendor-neutral open standard for distributed tracing.
+
+- Standardized semantic (span, trace, events, baggage)
+- Standardized client libraries (Go, Java, Python)
+- Popular tracers support (Zipkin, Appdash, Lightstep, Jaeger)
+
+.link http://opentracing.io
+.link https://github.com/opentracing/opentracing-go
+
+: distributed request
+
+* Distributed request
+
+.image examples/tracing/tracing_problem_2.png _ 400
+
+: trace picture
+
+* Trace
+
+.image examples/tracing/tracing_kolbasa_4.png _ 1000
+
+: span state
+
+* Span
+
+Each span has following state:
+
+- Operation name
+- Start timestamp
+- End timestamp
+- Span tags
+- Span logs
+- SpanContext
+
+* Creating spans
+
+Create root span
+
+.code examples/tracing/example.go /SPAN1 OMIT/,/SPAN2 OMIT/ HLx
+
+Create child span
+
+.code examples/tracing/example.go /SPAN3 OMIT/,/SPAN4 OMIT/ HLx
+
+* Context propagation
+
+.image examples/tracing/propagation.png _ 500
+
+* HTTP request tracing
+
+.code examples/tracing/http.go /START OMIT/,/END OMIT/ HLx
+
+.image examples/tracing/client_server_4.png _ 1000 
+
+* Span logs
+
+.image examples/tracing/http_events_2.png _ 800
+
+* Span tags
+
+.image examples/tracing/http_tags_3.png _ 800
+
+* Integration process
+
+- RPC layer (middlewares & clients)
+- external APIs
+- databases & caches
+- critical paths
+- tags & logs
+
+* Trace example
+
+.image examples/tracing/jaeger.png _ 1000 
+
+* Questions?
+
+: Notes

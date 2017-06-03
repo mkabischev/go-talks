@@ -1,0 +1,14 @@
+// START OMIT
+
+func SomeHandler(ctx context.Context, r Request) (*Response, error) {
+	l := logger.FromContext(ctx)
+
+	l = l.WithField("rider_id", "73be6b5f-9d78-43a4-991b-b5a5cb9630d3"). // HLx
+		  WithField("driver_id", "0a170dfd-52d9-494a-88e7-fe73b48f900f") // HLx
+
+    // ...
+
+	l.Info("ride started")
+}
+
+// END OMIT
