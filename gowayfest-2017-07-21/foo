@@ -1,0 +1,44 @@
+1. Another examples?
+    1.1. Place storages
+        Cache / Database / External
+
+
+2. Metrics decorators a lot!!!
+
+```go
+
+var ErrNotFound = errors.New("place not found")
+
+type Storage interface {
+    Read(ctx context.Context, id uuid.UUID) (*Place, error) 
+}
+
+type StorageWithStats struct {
+    next    Storage
+    summary prometheus.Summary
+}
+
+func (s *StorageWithStats) Read(ctx context.Context, id uuid.UUID) (*Place, error) {
+    defer func(t time.Time){ 
+        s.summary.Observe(time.Since(t))
+    }(time.Now())
+
+    retturn s.next.Read(id)
+}
+
+type FailoverStorage struct {
+    storages []Storage
+}
+
+func (s *FailoverStorage) Read(ctx context.Context, id uuid.UUID) (*Place, error) {
+    for _, storage := range s.storages {
+        if p, err := storage.Read(ctx, id); err == nil {
+            return p, err
+        }
+    }
+
+    return nil, ErrNotFound
+}
+
+```
+
