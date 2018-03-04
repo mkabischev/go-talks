@@ -1,0 +1,374 @@
+Go 1.10
+What's new?
+
+Mike Kabischev
+Software Engineer at Juno
+@mkabischev
+kabischev@gmail.com
+
+* Notes
+
+The slides are heavily based on @francecs' talk: [[https://campoy.cat/l/sog110][campoy.cat/l/sog110]]
+
+* Time flies
+
+Go 1.8 is one year old (Happy Birthday!)
+
+Go 1.9 is already 6 months old!
+
+Go 1.10rc2 was released on February 7th.
+
+Go 1.10 is about 🤞 to be released!
+
+.image img/flying.png
+
+* Agenda
+
+Changes since Go 1.9:
+
+- The Language
+- The Ports
+- The Tooling
+- The Standard Library
+- The Performance   
+- The Community
+
+
+* Changes To The Language
+
+* How to install?
+    ➜ go get golang.org/x/build/version/go1.10rc2
+    ➜ go1.10rc2 download
+    ➜ go1.10rc2 version
+    go version go1.10rc2 darwin/amd64
+
+
+* Changes To The Language
+
+.image img/nothing.jpg _ 900
+.caption [[http://ukrokuchannels.blogspot.be/2013/11/roku-uk-channel-store-weekly-roundup-35.html][source]]
+
+* Ports
+
+* New Ports
+
+.image img/nothing2.jpg _ 1000
+.caption [[https://timesofindia.indiatimes.com/world/rest-of-world/snow-in-the-sahara-desert-it-happened-this-week-in-ain-sefra-algeria/articleshow/56114067.cms][source]]
+
+* Notes On Existing Ports
+
+- FreeBSD: requires FreeBSD 10.3 or later
+
+- NetBSD: works but requires NetBSD 8 ... which is not released yet
+
+- OpenBSD: next version will require OpenBSD 6.2
+
+- OS X: next version will require OS X 10.10 Yosemite
+
+- Windows: next version will require Windows 7 (no more XP or Vista)
+
+* One More Note On Existing Ports
+
+It's rare that I laugh out loud while reading GitHub issues.
+
+.image img/burn.png _ 1000
+
+
+
+
+* Changes To The Tooling
+
+* Changes To The Tooling
+
+In two words: easier and faster.
+
+* Easier set-up
+
+`GOPATH` became optional in Go 1.8.
+
+`GOROOT` is now optional too, deduced from the binary path.
+
+A new variable `GOTMPDIR` was added to control where temporary files are created.
+
+* Faster tools via caching
+
+- `go`install` now caches the result of compiled packages.
+
+- `go`install` and `go`build` are *much* faster in general as a result
+
+- you won't need `go`build`-i` anymore!
+
+It seems the `pkg` directory might eventually disappear!
+
+* Testing
+
+Also caches results, everything is faster
+
+    ➜  go test strings
+    ok  	strings	(cached)
+
+In order to bypass the cachee use `-count=1`
+
+    ➜  go test -count=1 strings
+    ok  	strings	0.295s
+
+Also runs `vet`, some of your tests might fail.
+
+Also:
+
+- `coverprofile` can be done over many tests too
+- new `-failfast` and `-json` flags
+
+
+* gofmt
+
+Small change in formatting of three-index slicing expressions.
+
+Before:
+
+    a[i : j:k]
+
+Now:
+
+    a[i : j : k]
+
+This might break some of your CI tests (it broke some of mine).
+
+
+
+
+* Changes To The Standard Library
+
+* Changes To The Standard Library
+
+No new packages with Go 1.10
+
+
+* Changes to bytes
+
+`Fields`, `FieldsFunc`, `Split`, and `SplitAfter` limit the capacity of the returned slices.
+
+.play bytes/fields.go /START/,/END/
+
+.caption [[https://play.golang.org/p/efBt6pBszef][playground]]
+
+* Changes to flags
+
+This is minor, but I am very happy about it!
+
+.play flags/main.go /START/,/END/
+
+Before 😕
+
+    -s int
+            some other stuff
+    it's long to explain
+    -z int
+            some number (default 42)
+
+Now 😎
+
+    -s int
+            some other stuff
+            it's long to explain
+    -z int
+            some number (default 42)
+
+* Changes to go/doc
+
+For a type T, functions returning slices of `T`, `*T`, or `**T` are now linked to `T`.
+
+Those functions now appear in the `Funcs` list of the type, not the package.
+
+Example:
+
+.code things/things.go
+
+* Changes to go/doc (cont.)
+
+Before 😕
+
+    package things // import "github.com/campoy/talks/go1.10/things"
+
+    func ManyThings() []Thing
+    type Thing struct{}
+        func NewThing() *Thing
+
+Now 😎
+
+    package things // import "github.com/campoy/talks/go1.10/things"
+
+    type Thing struct{}
+        func ManyThings() []Thing
+        func NewThing() *Thing
+
+* Changes to text/template
+
+New `{{break}}` and `{{continue}}` for `{{range}}`.
+
+.play template/main.go /var tmpl/,/\)\)/
+
+_Note:_ Interestingly, this is not implemented in the `html` package.
+
+* strings
+
+I'm sure you've written this kind of code before.
+
+.play -edit strings/bytes.go /var buf/,/buf.String/
+
+But there's some issues with it.
+
+`String` creates allocations since it convers `[]byte` to `string`.
+
+There could be a better and simpler way to do this.
+
+.play -edit strings/strings.go /var b/,/b.String/
+
+This uses `unsafe` to avoid copies in the creation of strings.
+
+* strings.Builder 👍
+
+When you're creating many strings, it is definitely worth it.
+
+.code strings/bench_test.go /START/,/END/
+
+Benchmark results:
+
+    $ go test -bench=. -benchmem
+    goos: darwin
+    goarch: amd64
+    pkg: github.com/campoy/talks/go1.10/strings
+    BenchmarkBuffer-4            100          20861915 ns/op        215641272 B/op     10317 allocs/op
+    BenchmarkBuilder-4          3000            535081 ns/op          153647 B/op         22 allocs/op
+    PASS
+    ok      github.com/campoy/talks/go1.10/strings  3.626s
+
+* strings.Builder 👎
+
+When you're creating many strings, it is definitely worth it.
+
+	for i := 0; i < 10000; i++ {
+		fmt.Fprintf(w, "😊")
+		// out = w.String()
+	}
+
+Benchmark results:
+
+    $ go test -bench=. -benchmem
+    goos: darwin
+    goarch: amd64
+    pkg: github.com/campoy/talks/go1.10/strings
+    BenchmarkBuffer-4           3000            525691 ns/op          152056 B/op         11 allocs/op
+    BenchmarkBuilder-4          3000            626132 ns/op          153647 B/op         22 allocs/op
+    PASS
+    ok      github.com/campoy/talks/go1.10/strings  4.072s
+
+* unicode
+
+.image img/emoji1.jpg _ 800
+.caption [[http://www.unicode.org/emoji/charts/emoji-versions.html#2017][source]]
+
+* unicode
+
+.image img/emoji2.jpg
+.caption oh my gopher!
+
+* unicode
+
+.image img/curling.png 400 _
+.caption sure ... why not
+
+* unicode
+
+.image img/t-rex.png 400 _
+.caption roar
+
+* unicode
+
+.image img/mindblown.png 400 _
+.caption mind blown
+
+* and the unicode character we all wanted
+
+.image img/bitcoin.png 400 _
+.caption the character we deserve
+
+
+
+
+* Performance Changes
+
+* Runtime Performance
+
+After running all the benchmakrks on the standard library on go1.9.3 vs go1.10rc1:
+
+- nothing changed
+
+    $ benchstat go1.9.txt go1.10.txt  | grep -v "\~"
+
+.image img/movealong.jpg _ 550
+.caption [[http://memes.com/img/894487][source]]
+
+* Compiler Performance
+
+Compiling the standard library is *10%*faster*!
+
+    $ benchstat go1.9.3.txt go.1.10rc1.txt 
+    name       old time/op       new time/op       delta
+    Template         234ms ± 4%        231ms ± 4%     ~     (p=0.101 n=10+8)
+    Unicode          107ms ± 1%        109ms ± 6%     ~     (p=0.211 n=9+10)
+    GoTypes          742ms ± 2%        744ms ± 2%     ~     (p=0.905 n=9+10)
+    Compiler         3.50s ± 3%        3.54s ± 5%     ~     (p=0.393 n=10+10)
+    SSA              6.95s ± 4%        9.04s ± 5%  +29.98%  (p=0.000 n=10+10)
+    Flate            149ms ± 2%        147ms ± 5%   -1.53%  (p=0.035 n=10+9)
+    GoParser         189ms ± 3%        183ms ± 3%   -3.44%  (p=0.002 n=9+9)
+    Reflect          476ms ± 5%        489ms ± 6%   +2.90%  (p=0.043 n=10+10)
+    Tar              134ms ± 1%        220ms ± 3%  +64.14%  (p=0.000 n=9+10)
+    XML              258ms ± 6%        266ms ± 6%   +2.90%  (p=0.043 n=10+10)
+    StdCmd           19.1s ± 1%        17.1s ± 3%  -10.57%  (p=0.000 n=10+10)
+
+.caption Following [[https://golang.org/x/tools/cmd/compilebench][https://golang.org/x/tools/cmd/compilebench]].
+.caption Run on a Google Compute Engine instance with 8 cores.
+
+* Garbage Collector History in Tweets
+
+* go 1.5
+
+.image img/gct1.png _ 900
+
+* go 1.6
+
+.image img/gct2.png _ 900
+
+* go 1.7
+
+.image img/gct4.png _ 900
+
+* go 1.8 (beta 1)
+
+.image img/gct5.png _ 700
+
+* go 1.9 (beta 1)
+
+.image img/gct6.png _ 800
+
+* and finally, go 1.10
+
+.image img/gct7.png _ 600
+.image img/gct7tweet.png _ 400
+
+* A couple more changes too
+
+.image img/changes.png _ 1000
+.caption [[https://beta.golang.org/doc/go1.10][Go 1.10 release notes (DRAFT)]]
+
+* Changes To The Community
+
+* 
+
+.image img/pr-github.png _ 950
+
+* 
+
+.image img/pr-github3.png _ 950
+.image img/pr-github2.png _ 950

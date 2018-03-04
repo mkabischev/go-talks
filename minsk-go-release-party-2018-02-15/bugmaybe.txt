@@ -1,0 +1,132 @@
+--- BENCH: BenchmarkClientServerParallelTLS64-8
+        serve_test.go:4925: Get: Get https://127.0.0.1:41385: dial tcp 127.0.0.1:41385: 
+socket: too many open files
+        serve_test.go:4925: Get: Get https://127.0.0.1:41385: dial tcp 127.0.0.1:41385: 
+socket: too many open files
+        serve_test.go:4925: Get: Get https://127.0.0.1:41385: dial tcp 127.0.0.1:41385: 
+socket: too many open files
+        serve_test.go:4925: Get: Get https://127.0.0.1:41385: dial tcp 127.0.0.1:41385: 
+socket: too many open files
+        serve_test.go:4925: Get: Get https://127.0.0.1:41385: dial tcp 127.0.0.1:41385: 
+socket: too many open files
+        serve_test.go:4925: Get: Get https://127.0.0.1:41385: dial tcp 127.0.0.1:41385: 
+socket: too many open files
+        serve_test.go:4925: Get: Get https://127.0.0.1:41385: dial tcp 127.0.0.1:41385: 
+socket: too many open files
+        serve_test.go:4925: Get: Get https://127.0.0.1:41385: dial tcp 127.0.0.1:41385: 
+socket: too many open files
+        serve_test.go:4925: Get: Get https://127.0.0.1:41385: dial tcp 127.0.0.1:41385: 
+socket: too many open files
+        serve_test.go:4925: Get: Get https://127.0.0.1:41385: dial tcp 127.0.0.1:41385: 
+socket: too many open files
+        ... [output truncated]
+BenchmarkServer-8                                  10000            110569 ns/op        
+   2242 B/op          20 allocs/op
+--- FAIL: BenchmarkClient
+        main_test.go:140: Test appears to have leaked a timing out dial:
+                internal/poll.runtime_pollWait(0x7f4e9c29aeb8, 0x77, 0xc42081f3a0)
+                        /home/francesc/sdk/go1.10rc1/src/runtime/netpoll.go:173 +0x57
+                internal/poll.(*pollDesc).wait(0xc4209fe598, 0x77, 0xc42081f300, 0xc4208
+1f3f0, 0xc42081f301)
+                        /home/francesc/sdk/go1.10rc1/src/internal/poll/fd_poll_runtime.g
+o:85 +0x9b
+                internal/poll.(*pollDesc).waitWrite(0xc4209fe598, 0xc4209fe500, 0x0, 0x0
+)
+                        /home/francesc/sdk/go1.10rc1/src/internal/poll/fd_poll_runtime.g
+o:94 +0x3d
+                internal/poll.(*FD).WaitWrite(0xc4209fe580, 0xc4200240b0, 0xc4200240b0)
+                        /home/francesc/sdk/go1.10rc1/src/internal/poll/fd_unix.go:440 +0
+x37
+                net.(*netFD).connect(0xc4209fe580, 0x93e400, 0xc4200240b0, 0x0, 0x0, 0x9
+39e40, 0xc4201ce360, 0x0, 0x0, 0x0, ...)
+                        /home/francesc/sdk/go1.10rc1/src/net/fd_unix.go:152 +0x299
+                net.(*netFD).dial(0xc4209fe580, 0x93e400, 0xc4200240b0, 0x93f1c0, 0x0, 0
+x93f1c0, 0xc4202dc540, 0xc4202e65f0, 0x5d380e)
+                        /home/francesc/sdk/go1.10rc1/src/net/sock_posix.go:142 +0xe9
+                net.socket(0x93e400, 0xc4200240b0, 0x8cdb76, 0x3, 0x2, 0x1, 0x0, 0x0, 0x
+93f1c0, 0x0, ...)
+                        /home/francesc/sdk/go1.10rc1/src/net/sock_posix.go:93 +0x1a6
+                net.internetSocket(0x93e400, 0xc4200240b0, 0x8cdb76, 0x3, 0x93f1c0, 0x0,
+ 0x93f1c0, 0xc4202dc540, 0x1, 0x0, ...)
+                        /home/francesc/sdk/go1.10rc1/src/net/ipsock_posix.go:141 +0x129
+                net.doDialTCP(0x93e400, 0xc4200240b0, 0x8cdb76, 0x3, 0x0, 0xc4202dc540, 
+0x0, 0x0, 0x0)
+                        /home/francesc/sdk/go1.10rc1/src/net/tcpsock_posix.go:62 +0xb9
+                net.dialTCP(0x93e400, 0xc4200240b0, 0x8cdb76, 0x3, 0x0, 0xc4202dc540, 0x
+577c91ee5aa, 0x6bf2a93, 0x6bf2a930093e400)
+                        /home/francesc/sdk/go1.10rc1/src/net/tcpsock_posix.go:58 +0xe4
+                net.dialSingle(0x93e400, 0xc4200240b0, 0xc4209fe400, 0x93bde0, 0xc4202dc
+540, 0x0, 0x0, 0x0, 0x0)
+                        /home/francesc/sdk/go1.10rc1/src/net/dial.go:547 +0x375
+                net.dialSerial(0x93e400, 0xc4200240b0, 0xc4209fe400, 0xc420228180, 0x1, 
+0x1, 0x0, 0x0, 0x0, 0x0)
+                        /home/francesc/sdk/go1.10rc1/src/net/dial.go:515 +0x22d
+                net.(*Dialer).DialContext(0xb62b20, 0x93e400, 0xc4200240b0, 0x8cdb76, 0x
+3, 0xc4203860e0, 0xf, 0x0, 0x0, 0x0, ...)
+                        /home/francesc/sdk/go1.10rc1/src/net/dial.go:397 +0x678
+                net/http.(*Transport).dial(0xc4201d6000, 0x93e400, 0xc4200240b0, 0x8cdb7
+6, 0x3, 0xc4203860e0, 0xf, 0x4476e1, 0x44710f, 0xf, ...)
+                        /home/francesc/sdk/go1.10rc1/src/net/http/transport.go:907 +0x17
+d
+                net/http.(*Transport).dialConn(0xc4201d6000, 0x93e400, 0xc4200240b0, 0x0
+, 0xc420214140, 0x4, 0xc4203860e0, 0xf, 0xc4202ce540, 0x939601, ...)
+                        /home/francesc/sdk/go1.10rc1/src/net/http/transport.go:1143 +0x3
+17
+                net/http.(*Transport).getConn.func4(0xc4201d6000, 0x93e400, 0xc4200240b0
+, 0xc4202dc4b0, 0xc42055e180)
+                        /home/francesc/sdk/go1.10rc1/src/net/http/transport.go:957 +0x78
+                created by net/http.(*Transport).getConn
+                        /home/francesc/sdk/go1.10rc1/src/net/http/transport.go:956 +0x36
+3
+                net/http.(*Transport).getConn.func2.1(0xc42055e180, 0xc4201d6000, 0x8f9b
+d8)
+                        /home/francesc/sdk/go1.10rc1/src/net/http/transport.go:946 +0x46
+                created by net/http.(*Transport).getConn.func2
+                        /home/francesc/sdk/go1.10rc1/src/net/http/transport.go:945 +0x7a
+                testing.(*B).run1(0xc42119a480, 0xc42119a480)
+                        /home/francesc/sdk/go1.10rc1/src/testing/benchmark.go:216 +0xa1
+                testing.(*B).Run(0xc4203ea300, 0x8d2a74, 0xf, 0x8f9c98, 0x4e2c00)
+                        /home/francesc/sdk/go1.10rc1/src/testing/benchmark.go:511 +0x211
+                testing.runBenchmarks.func1(0xc4203ea300)
+                        /home/francesc/sdk/go1.10rc1/src/testing/benchmark.go:416 +0x60
+                testing.(*B).runN(0xc4203ea300, 0x1)
+                        /home/francesc/sdk/go1.10rc1/src/testing/benchmark.go:141 +0xb2
+                testing.runBenchmarks(0x8cf413, 0x8, 0xc42034c100, 0xb55760, 0x1b, 0x1b,
+ 0xc420062cc0)
+                        /home/francesc/sdk/go1.10rc1/src/testing/benchmark.go:422 +0x46d
+                testing.(*M).Run(0xc42013a580, 0x0)
+                        /home/francesc/sdk/go1.10rc1/src/testing/testing.go:984 +0x366
+                net/http_test.TestMain(0xc42013a580)
+                        /home/francesc/sdk/go1.10rc1/src/net/http/main_test.go:23 +0x2b
+                main.main()
+                        _testmain.go:1006 +0x151
+BenchmarkServerFakeConnNoKeepAlive-8              100000             22905 ns/op        
+   4666 B/op          48 allocs/op
+BenchmarkServerFakeConnWithKeepAlive-8            100000             11772 ns/op        
+   2443 B/op          22 allocs/op
+BenchmarkServerFakeConnWithKeepAliveLite-8        200000              8276 ns/op        
+   1302 B/op          12 allocs/op
+BenchmarkServerHandlerTypeLen-8                   200000              9247 ns/op        
+   2121 B/op          20 allocs/op
+BenchmarkServerHandlerNoLen-8                     200000              8646 ns/op        
+   2089 B/op          17 allocs/op
+BenchmarkServerHandlerNoType-8                    200000              8179 ns/op        
+   2089 B/op          18 allocs/op
+BenchmarkServerHandlerNoHeader-8                  200000              6542 ns/op        
+   1302 B/op          12 allocs/op
+BenchmarkServerHijack-8                           100000             23999 ns/op        
+  16104 B/op          46 allocs/op
+BenchmarkCloseNotifier-8                           10000            104338 ns/op        
+   3363 B/op          54 allocs/op
+BenchmarkResponseStatusLine-8                   200000000               15.0 ns/op      
+      0 B/op           0 allocs/op
+FAIL
+exit status 1
+FAIL    net/http        97.433s
+2018/02/03 05:43:59 cgi: copy error: write tcp 127.0.0.1:39317->127.0.0.1:58648: write: 
+connection reset by peer
+2018/02/03 05:43:59 cgi: copy error: past write limit
+2018/02/03 05:43:59 cgi: no headers
+2018/02/03 05:43:59 cgi: missing required Content-Type in headers
+2018/02/03 05:43:59 cgi: no headers
+PASS
