@@ -1,0 +1,7 @@
+// BenchmarkTeleportFilter735-4 	   10000	    106983 ns/op	   64865 B/op	     735 allocs/op
+// BenchmarkTeleportFilter735-4 	   20000	     67293 ns/op	    6224 B/op	       2 allocs/op
+// BenchmarkTeleportFilter735-4      20000	     70369 ns/op	    6224 B/op	       2 allocs/op
+// BenchmarkTeleportFilter735-4      50000	     33495 ns/op	    6224 B/op	       2 allocs/op
+func BenchmarkTeleportFilter735(b *testing.B) {
+    // ...
+}

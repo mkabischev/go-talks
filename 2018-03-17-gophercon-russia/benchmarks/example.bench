@@ -1,0 +1,17 @@
+goos: darwin
+goarch: amd64
+pkg: compress/flate
+BenchmarkDecode/Digits/Huffman/1e4-8         	   10000    124067 ns/op  80.60 MB/s   40628 B/op       5 allocs/op
+BenchmarkDecode/Digits/Huffman/1e5-8         	    1000   1140307 ns/op  87.70 MB/s   40629 B/op       5 allocs/op
+BenchmarkDecode/Digits/Huffman/1e6-8         	     100  11636837 ns/op  85.93 MB/s   40713 B/op       5 allocs/op
+BenchmarkDecode/Digits/Speed/1e4-8           	   10000    127418 ns/op  78.48 MB/s   40707 B/op       8 allocs/op
+BenchmarkDecode/Digits/Speed/1e5-8           	    1000   1401090 ns/op  71.37 MB/s   40917 B/op      11 allocs/op
+BenchmarkDecode/Digits/Speed/1e6-8           	     100  14084398 ns/op  71.00 MB/s   44473 B/op      73 allocs/op
+BenchmarkDecode/Digits/Default/1e4-8         	   10000    127888 ns/op  78.19 MB/s   40675 B/op       7 allocs/op
+BenchmarkDecode/Digits/Default/1e5-8         	    1000   1318650 ns/op  75.84 MB/s   40917 B/op      13 allocs/op
+BenchmarkDecode/Digits/Default/1e6-8         	     100  13086154 ns/op  76.42 MB/s   44807 B/op      79 allocs/op
+BenchmarkDecode/Digits/Compression/1e4-8     	   10000    129187 ns/op  77.41 MB/s   40675 B/op       7 allocs/op
+BenchmarkDecode/Digits/Compression/1e5-8     	    1000   1289414 ns/op  77.55 MB/s   40917 B/op      13 allocs/op
+BenchmarkDecode/Digits/Compression/1e6-8     	     100  13191738 ns/op  75.81 MB/s   44889 B/op      79 allocs/op
+BenchmarkDecode/Twain/Huffman/1e4-8          	   10000    150225 ns/op  66.57 MB/s   42016 B/op      15 allocs/op
+BenchmarkDecode/Twain/Huffman/1e5-8          	    1000   1355371 ns/op  73.78 MB/s   43528 B/op      20 allocs/op
