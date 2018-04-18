@@ -1,0 +1,24 @@
+func (c *HTTPCollector) send() error {
+	// in order to prevent sending the same batch twice
+	c.sendMutex.Lock()
+	defer c.sendMutex.Unlock()
+
+	// Select all current spans in the batch to be sent
+	c.batchMutex.Lock() // HLx
+	sendBatch := c.batch[:] // HLx
+	c.batchMutex.Unlock() // HLx
+
+	req, err := http.NewRequest(...)
+
+	if _, err = c.client.Do(req); err != nil {
+		c.logger.Log("err", err.Error())
+		return err
+	}
+
+	// Remove sent spans from the batch
+	c.batchMutex.Lock() // HLx
+	c.batch = c.batch[len(sendBatch):] // HLx
+	c.batchMutex.Unlock() // HLx
+
+	return nil
+}
