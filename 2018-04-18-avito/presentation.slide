@@ -1,5 +1,5 @@
 Building observable applications
-18 March 2018
+18 April 2018
 
 Mike Kabischev
 Backend engineer, Gett RnD
@@ -196,9 +196,10 @@ instead of
 
 * Talk by Mike Prokopchuk@Avito about Prometheus
 
-.image images/mike.png _ 900
+.image images/mike.png _ 800
 
 .link https://youtu.be/cQgHt9V5mOE
+eventspace.by
 
 : decorators
 
