@@ -1,0 +1,286 @@
+How to use Context
+27 April 2018
+
+Mike Kabischev
+Backend engineer, Gett RnD
+kabischev@gmail.com
+@mkabischev
+
+*   
+
+.image images/logo.png _ 600
+.link https://blog.golang.org/go-brand
+
+* Request scope
+
+In Go servers, each incoming request is handled in its own goroutine.
+Handler code needs access to request-specific values:
+
+- user meta
+- request deadline
+- tracing information
+
+
+* Cancelation
+
+Stop work when the caller no longer needs the result.
+
+- user goes away, closes connection
+- operation exceeds its deadline
+Efficiently canceling unneeded work saves resources.
+
+* Cancelation
+
+Cancelation *does* *not* *stop* execution or trigger panics.
+
+Cancelation *informs* *code* that its work is no longer needed.
+
+Code checks for cancelation and *decides* what to do: 
+shut down, clean up, return errors.
+
+* context.Context
+
+* History
+
+- 2014. *golang.org/x/net/context* package.
+- Go 1.7, 2016. moved to std lib. *context* package.
+
+.link https://blog.golang.org/context
+.link https://blog.golang.org/pipelines
+
+* context.Context
+A Context carries a deadline, a cancelation signal, and other values across API boundaries.
+
+Context's methods may be called by multiple goroutines simultaneously.
+
+    type Context interface {
+        Done() <-chan struct{}                   // closed when this Context is canceled
+        Err() error                              // why this Context was canceled
+        Deadline() (deadline time.Time, ok bool) // when this Context will be canceled
+        Value(key interface{}) interface{}       // data associated with this Context
+    }
+
+*Idiom*: pass ctx as the first argument to a function.
+
+    import "context"
+
+    // ReadFile reads file name and returns its contents.
+    // If ctx.Done is closed, ReadFile returns ctx.Err immediately.
+    func ReadFile(ctx context.Context, name string) ([]byte, error)
+
+
+* Context.Done() returns the channel
+
+Closing a channel works as a broadcast signal.
+
+_After_ _the_ _last_ _value_ _has_ _been_ _received_ _from_ _a_ _closed_ _channel_ _c_, _any_ _receive_ _from_ _c_ _will_ _succeed_ _without_ _blocking_, _returning_ _the_ _zero_ _value_ _for_ _the_ _channel_ _element_.
+
+Any number of goroutines can `select` on `<-ctx.Done()`.
+
+Done returns a receive-only channel that can only be canceled using the `cancel` function returned by `WithCancel`. It ensures the channel is closed exactly once.
+
+* context.Err()
+
+If `Done` is not yet closed, `Err` returns nil.
+If `Done` is closed, `Err` returns a non-nil error explaining why:
+
+- `Canceled` if the context was canceled
+- `DeadlineExceeded` if the context's deadline passed.
+
+After `Err` returns a non-nil error, successive calls to `Err` return the same error.
+
+* Contexts are hierarchical
+
+Contexts form a tree, any subtree of which can be canceled.
+
+`Context` has no `Cancel` method; get a cancelable `Context` using `WithCancel`:
+
+    // WithCancel returns a copy of parent whose Done channel is closed as soon as
+    // parent.Done is closed or cancel is called.
+    func WithCancel(parent Context) (ctx Context, cancel CancelFunc)
+
+Passing a `Context` to a function does not pass the ability to cancel that `Context`.
+
+    // goroutine #1
+    ctx, cancel := context.WithCancel(parent)
+    ...
+    data, err := ReadFile(ctx, name)
+
+    // goroutine #2
+    cancel()
+
+
+
+* Deadlines & timeouts
+
+*Deadline* is an absolute time value. Ex: _2018-04-27_ _18:00:00_.
+
+    deadline := time.Date(2018, 4, 27, 18, 0, 0, 0, time.UTC)
+    ctx, cancel := context.WithDeadline(context.Background(), deadline)
+    defer cancel()
+
+    doSmth(ctx)
+
+*Timeout* is relative value. Ex: _2s_, _100ms_, etc.
+
+    timeout := 100 * time.Millisecond
+    ctx, cancel := context.WithTimeout(context.Background(), timeout)
+    defer cancel()
+
+    doSmth(ctx)
+
+* HTTP request timeout
+
+.image images/deadline_base.png _ 800
+
+* HTTP request timeout
+
+.image images/deadline_base.png _ 800
+
+.code code/http_timeout.go /START OMIT/,/END OMIT/
+
+* Deadline propagation
+
+.image images/deadline_prop.png _ 800
+
+* Deadline propagation
+
+.image images/deadline_prop.png _ 800
+
+.code code/http_propagation.go /START OMIT/,/END OMIT/ HLx
+
+* Deadline propagation (Middleware)
+
+.image images/deadline_prop.png _ 800
+
+.code code/slow-server.go /START OMIT/,/END OMIT/ HLx
+
+* context.WithValue
+
+* Context.Value
+
+*Inform*, *not* *control*. This is the primary mantra that you should guide if you are using context.Value correctly.  It should never be required input for documented or expected results.
+
+Informs:
+
+- UserID
+- Remote IP
+- Logger
+- Trace
+
+Controls:
+
+- Configuration
+- DB connection
+
+* Context.Value
+
+Every context is immutable. Every `context.WithValue` call returns new `Context`.
+
+.code code/foo.g
+
+* Context.Value
+
+    ctx := context.WithValue(context.Background(), "requestID", 123)
+    ctx = context.WithValue(ctx, "userID", 456)
+    ctx = context.WithValue(ctx, "logger", logger)
+
+* Context.Value
+
+    ctx := context.WithValue(context.Background(), "requestID", 123)
+    ctx = context.WithValue(ctx, "userID", 456)
+    ctx = context.WithValue(ctx, "logger", logger)
+
+.image images/value_1.png _ 800
+
+* Context.Value
+
+    ctx := context.WithValue(context.Background(), "requestID", 123)
+    ctx = context.WithValue(ctx, "userID", 456)
+    ctx = context.WithValue(ctx, "logger", logger)
+
+.image images/value_2.png _ 800
+
+* Context.Value
+
+    ctx := context.WithValue(context.Background(), "requestID", 123)
+    ctx = context.WithValue(ctx, "userID", 456)
+    ctx = context.WithValue(ctx, "logger", logger)
+
+.image images/value_3.png _ 800
+
+* Context.Value
+
+    ctx := context.WithValue(context.Background(), "requestID", 123)
+    ctx = context.WithValue(ctx, "userID", 456)
+    ctx = context.WithValue(ctx, "logger", logger)
+
+.image images/value_3.png _ 800
+
+    requestID := ctx.Value("requestID").(int)
+
+* Context.Value
+
+.code code/trace/context.go
+
+* Goroutine local storage
+
+* Why there is no local storage in runtime?
+
+.image images/gls_problem.png
+.link https://groups.google.com/forum/#!topic/golang-nuts/Nt0hVV_nqHE
+
+* 
+
+.image images/dino.jpg _ 500
+
+* How to get goroutine ID?
+
+.image images/gid.png
+.link https://groups.google.com/forum/#!topic/golang-nuts/Nt0hVV_nqHE
+
+* github.com/tylerb/gls
+
+* github.com/tylerb/gls
+
+*Parses* *runtime* *stack* 🤯
+
+    func curGoroutineID() uint64 {
+        bp := littleBuf.Get().(*[]byte)
+        defer littleBuf.Put(bp)
+        b := *bp
+        b = b[:runtime.Stack(b, false)]
+        // Parse the 4707 out of "goroutine 4707 ["
+        b = bytes.TrimPrefix(b, goroutineSpace)
+        i := bytes.IndexByte(b, ' ')
+        if i < 0 {
+            panic(fmt.Sprintf("No space found in %q", b))
+        }
+        b = b[:i]
+        n, err := parseUintBytes(b, 10, 64)
+        if err != nil {
+            panic(fmt.Sprintf("Failed to parse goroutine ID out of %q: %v", b, err))
+        }
+        return n
+    }
+
+* github.com/jtolds/gls
+
+*Adds* *funcs* *to* *call* *stack* 🤯
+
+So, we define 16 special functions and embed base-16 tags into the stack using the call order of those 16 functions. Then, we can read our tags back out of the stack looking at the callers list.
+
+We then use these tags as an index into a traditional map for implementing this library.
+
+* github.com/jtolds/gls
+
+.image images/comments.png _ 1000
+.link https://github.com/jtolds/gls/blob/master/README.md
+
+* 
+.image images/poo.png 500 _
+
+* 
+.image images/love.png 500 _
+
+* Questions?
