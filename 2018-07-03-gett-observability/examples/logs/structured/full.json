@@ -1,0 +1,8 @@
+{
+  "time":       "2018-04-18T14:38:59",
+  "level":      "info",
+  "msg":        "ride started",
+  "rider_id":   "73be6b5f-9d78-43a4-991b-b5a5cb9630d3", // HLx
+  "driver_id":  "0a170dfd-52d9-494a-88e7-fe73b48f900f", // HLx
+  "ride_id":    "5abc0868-8376-49ea-a66a-d42bc3937852"
+}

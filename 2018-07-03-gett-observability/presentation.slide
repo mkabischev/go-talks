@@ -1,0 +1,381 @@
+Building observable applications
+3 July 2018
+
+Mike Kabischev
+Software engineer, Gett RnD
+kabischev@gett.com
+@mkabischev
+
+* Observability
+
+* Observability
+
+.link https://blog.twitter.com/engineering/en_us/a/2013/observability-at-twitter.html
+
+These are the four pillars of the Observability:
+
+- Log aggregation/analytics
+- Monitoring
+- Distributed systems tracing
+- Visualization/Alerting
+
+* Observability
+
+.image images/obs1.png
+
+.link https://peter.bourgon.org/blog/2017/02/21/metrics-tracing-and-logging.html
+
+* Observability
+
+.image images/obs2.png
+.link https://peter.bourgon.org/blog/2017/02/21/metrics-tracing-and-logging.html
+
+* Logs
+
+* What to log?
+
+- Errors
+- Events
+- State
+- Requests/responses
+- Some debug information
+
+* What to log?
+
+- Errors
+- Events
+- State
+- Requests/responses
+- Some debug information
+
+Meta information:
+
+- time
+- level
+- component/service
+- requestID/traceID
+- ???
+
+* How to log?
+
+Std log package:
+
+- no log level support
+- only plain-text format
+- no struct-logging support
+
+Alternatives:
+
+- *github.com/sirupsen/logrus*
+- github.com/uber-go/zap
+- github.com/golang/glog
+
+.link https://github.com/avelino/awesome-go#logging
+
+* Structured logging
+
+Human friendly
+.code examples/logs/structured/before.json
+
+* Structured logging
+
+Human friendly
+.code examples/logs/structured/before.json
+
+Machine friendly
+.code examples/logs/structured/after.json HLx
+
+* Structured logging
+
+.code examples/logs/structured/main /START OMIT/,/END OMIT/ HLx
+
+Output
+.code examples/logs/structured/full.json HLx
+
+* Logger + Context = ❤️
+
+.code examples/logs/structured/file.go /START OMIT/,/END OMIT/ HLx
+
+* Logger + Context = ❤️
+
+Prepare logger
+.code examples/logs/structured/file.go /PREPARE_START OMIT/,/PREPARE_END OMIT/ HLx
+
+Use it in handler
+.code examples/logs/structured/file.go /HANDLER_START OMIT/,/HANDLER_END OMIT/ HLx
+
+* Structured logging. TraceID
+
+.code examples/logs/structured/full_with_trace.json HLx
+
+: infrastructure
+
+* "Finger-crossed" logging
+
+Don't enable only *errors* mode in production.
+
+Only requests which actually trigger an error will be in the logs, but they will contain all records, not only those above the level threshold.
+
+* Logging infrastructure
+
+.image examples/logs/infra.png _ 680
+
+* Metrics
+
+* Metrics
+
+- Show performance of application
+- Helps to detect impacts of deployments
+- May trigger alerts
+
+* What to measure?
+
+Runtime:
+
+- number of goroutines/threads/workers
+- memory usage & GC timing
+
+Service:
+
+- rate
+- errors
+- duration
+
+External resources:
+
+- rate/duration
+- errors
+- connections
+
+* How to measure? Libraries
+
+- expvar package
+- github.com/rcrowley/go-metrics
+- github.com/go-kit/metrics
+- *github.com/prometheus/client_golang*
+- github.com/influxdata/influxdb/client
+
+* How to measure? Storages
+
+Push model:
+
+- Graphite
+- InfluxDB
+- *NewRelic*
+- StatsD
+- etc
+
+Pull model:
+
+- *Prometheus*
+
+* Push model
+
+.image examples/metrics/push_1.png 508 _
+
+* Push model
+
+.image examples/metrics/push_2.png _ 750
+
+* Push model
+
+.image examples/metrics/push_3.png _ 750
+
+* Pull model
+
+.image examples/metrics/pull_model.png _ 750
+
+: pull model
+
+* Pull model
+
+- Helps to avoid metric name collisions
+- Application doesn't depend on monitoring system
+- Easy local debug
+
+  ➜  ~ curl http://localhost:8080/metrics
+  # HELP go_gc_duration_seconds A summary of the GC invocation durations.
+  # TYPE go_gc_duration_seconds summary
+  go_gc_duration_seconds{quantile="0"} 0
+  go_gc_duration_seconds{quantile="0.25"} 0
+  go_gc_duration_seconds{quantile="0.5"} 0
+  go_gc_duration_seconds{quantile="0.75"} 0
+  go_gc_duration_seconds{quantile="1"} 0
+  go_gc_duration_seconds_sum 0
+  go_gc_duration_seconds_count 0
+  # HELP go_goroutines Number of goroutines that currently exist.
+  # TYPE go_goroutines gauge
+  go_goroutines 6
+
+: prometheus data model
+
+* Multidimensional data model
+
+Allows easy filtering, grouping, and matching by these labels via the query language.
+
+  request_count{service="routing", instance="10.0.1.1", group="backend0"} 14163
+  request_count{service="routing", instance="10.0.1.2", group="backend0"} 14195
+  request_count{service="routing", instance="10.0.2.1", group="backend1"} 15434
+
+*request_count* - metric name 
+*service*, *instance*, *group* - labels names
+
+Count all requests
+
+  sum(request_count{service="routing"}) 43792
+Count requests in group *backend0*
+
+  sum(request_count{service="routing", group="backend0"}) 28358
+
+* Metrics types
+
+- *Gauge*  is a metric that represents a single numerical value that can arbitrarily go up and down.
+- *Counter* is a cumulative metric that represents a single numerical value that only ever goes up.
+- *Histogram* samples observations and counts them in configurable buckets.
+- *Summary* similar to a histogram. Also provides a total count of observations and a sum of all observed values, it calculates configurable quantiles over a sliding time window.
+
+
+* How to use it?
+
+
+.link https://github.com/gtforge/go-metrics
+.link https://confluence.gtforge.com/pages/viewpage.action?spaceKey=rnd&title=Metrics+standards Metrics standards:
+
+
+- Middlewares for RPC layer
+- Decorators for external APIs & libraries
+- Integration with database/storage drivers
+- Business events & metrics
+
+
+
+
+: decorators
+
+: distributed tracing
+
+* Distributed tracing
+
+* Distributed system
+
+.image examples/tracing/tracing_problem_2.png _ 400
+
+: history
+
+* Tracing systems
+
+- Google Dapper (~2004)
+- Twitter Zipkin (2012)
+- Sourcegraph Appdash (2015)
+- Uber Jaeger (2017)
+- AWS X-Ray (2017)
+- Google Stackdriver (2018)
+
+: opentracing.io
+
+* OpenTracing.io
+
+A vendor-neutral open standard for distributed tracing.
+
+- Standardized semantic (span, trace, events, baggage)
+- Standardized client libraries (Go, Java, Python)
+- Popular tracers support (Zipkin, Appdash, Lightstep, Jaeger)
+
+.link http://opentracing.io
+.link https://github.com/opentracing/opentracing-go
+
+* OpenCensus.io
+
+A single distribution of libraries for metrics and distributed tracing with minimal overhead that allows you to export data to multiple backends.
+
+.link https://opencensus.io
+.link https://github.com/census-instrumentation
+.link https://github.com/census-instrumentation/opencensus-go
+.link https://github.com/census-instrumentation/opencensus-ruby
+
+Exports data to: *Prometheus*, *Jaeger*, *Datagod*, etc.
+
+: distributed request
+
+* Distributed request
+
+.image examples/tracing/tracing_problem_2.png _ 400
+
+: trace picture
+
+* Trace
+
+.image examples/tracing/tracing_kolbasa_4.png _ 1000
+
+- Shows "real" execution flow
+- Helps to find critical paths
+
+: span state
+
+* Span
+
+Each span has following state:
+
+- Operation name
+- Start timestamp
+- End timestamp
+- Span tags
+- Span logs
+- SpanContext
+
+* Creating spans
+
+Create root span
+
+.code examples/tracing/example.go /SPAN1 OMIT/,/SPAN2 OMIT/ HLx
+
+Create child span
+
+.code examples/tracing/example.go /SPAN3 OMIT/,/SPAN4 OMIT/ HLx
+
+* OpenTracing + Context = ❤️
+
+.code examples/tracing/example.go /SPAN5 OMIT/,/SPAN6 OMIT/ HLx
+
+* Context propagation
+
+.image examples/tracing/propagation.png _ 500
+
+* Integration process
+
+- RPC layer (middlewares & clients)
+- external APIs
+- databases & caches
+- critical paths
+- tags & logs
+
+* Integration process
+
+- RPC layer (middlewares & clients)
+- external APIs
+- databases & caches
+- critical paths
+- tags & logs
+- *Sampling*
+
+* Jaeger architecture
+
+.image examples/tracing/jaeger_1.png _ 1000
+
+* Jaeger architecture
+
+.image examples/tracing/jaeger_2.png _ 1000
+
+* Trace example
+
+.image examples/tracing/jaeger.png _ 1000 
+
+* Span logs
+
+.image examples/tracing/http_events_2.png _ 800
+
+* Span tags
+
+.image examples/tracing/http_tags_3.png _ 800
+
+* Questions?

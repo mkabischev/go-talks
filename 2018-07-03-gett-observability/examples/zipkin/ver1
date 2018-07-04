@@ -1,0 +1,20 @@
+func (c *HTTPCollector) loop() {
+	tickc := time.Tick(c.batchInterval / 10)
+	for {
+		select {
+		case span := <-c.spanc:
+			c.batch = append(c.batch, span)
+		case <-tickc:
+            go c.sendNow() // HLx
+		case <-c.sendc:
+			if err := c.send(c.batch); err != nil { // HLx
+				c.logger.Log("err", err.Error()) // HLx
+			}
+			c.batch = c.batch[:0] // HLx
+		}
+	}
+}
+
+func (c *HTTPCollector) sendNow() {
+	c.sendc <- struct{}{} // HLx
+}
